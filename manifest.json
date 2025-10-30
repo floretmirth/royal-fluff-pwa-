@@ -1,0 +1,16 @@
+{
+  "name": "Royal Fluff",
+  "short_name": "Fluff",
+  "start_url": "Royal_Fluff_Prototype.html",
+  "display": "standalone",
+  "background_color": "#120919",
+  "theme_color": "#1e0f2b",
+  "icons": [
+    {
+      "src": "app-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

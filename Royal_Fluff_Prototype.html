@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Royal Fluff — Prototype PWA</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e0f2b"/>
+<style>
+:root{--bg:#120919;--panel:#1e0f2b;--accent:#b990ff;--gold:#e6c07b;--muted:#cbb6d9;--card:#2a1637;--white:#fff}
+*{box-sizing:border-box;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif}
+body{margin:0;min-height:100vh;background:linear-gradient(180deg,var(--bg) 0%, #0b0710 100%);display:flex;align-items:center;justify-content:center;padding:20px;color:var(--white)}
+.app{width:380px;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.04);background:linear-gradient(180deg,var(--panel), #24092f)}
+.header{padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;color:#2a0a3d;font-weight:800;font-size:20px}
+.title{flex:1}
+.title h1{margin:0;font-size:18px;letter-spacing:0.6px}
+.title p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+
+.container{padding:18px}
+.screen{display:none}
+.screen.active{display:block}
+.home-hero{display:flex;flex-direction:column;align-items:center;gap:12px}
+.cat-card{width:100%;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:12px;padding:12px;display:flex;gap:12px;align-items:center;border:1px solid rgba(255,255,255,0.03)}
+.cat-illustration{width:120px;height:120px;border-radius:12px;background:radial-gradient(circle at 30% 30%, #3a1545, #19061a);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.cat-illustration .fur{position:absolute;width:160px;height:160px;border-radius:50%;background:linear-gradient(180deg,#3e1a4c,#221028);opacity:0.95;filter:blur(12px);transform:translateY(-8px) scale(1.05)}
+.cat-face{position:relative;z-index:2;font-size:48px}
+.cat-info{flex:1;color:var(--muted);font-size:13px}
+.buttons{display:flex;gap:8px;margin-top:8px}
+.button{flex:1;padding:10px;border-radius:10px;border:0;background:transparent;color:var(--white);font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.05)}
+.button.primary{background:linear-gradient(90deg,var(--accent),var(--gold));color:#2a0a3d;border:0;box-shadow:0 6px 18px rgba(185,120,220,0.12)}
+.small{padding:8px;border-radius:8px;font-size:13px}
+.panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:12px;margin-top:12px;border:1px solid rgba(255,255,255,0.03)}
+.center{display:flex;align-items:center;justify-content:center;flex-direction:column}
+.groom-area{height:320px;border-radius:10px;background:linear-gradient(180deg,#2a1637,#1b0f27);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cat-sprite{width:220px;height:220px;border-radius:18px;background:linear-gradient(180deg,#3a1b47,#1b0c1f);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 6px 30px rgba(0,0,0,0.6)}
+.cat-sprite .eyes{position:absolute;top:70px;display:flex;gap:30px}
+.eye{width:18px;height:18px;border-radius:50%;background:var(--gold);box-shadow:0 2px 8px rgba(0,0,0,0.5)}
+.brush{position:absolute;right:18px;bottom:18px;background:linear-gradient(180deg,#d0b07a,#ffd88c);padding:10px;border-radius:10px;cursor:grab;box-shadow:0 8px 24px rgba(0,0,0,0.45);font-weight:800;color:#2a0a3d}
+.groom-stats{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-weight:700;color:var(--muted)}
+.trivia-card{padding:12px;border-radius:10px;background:linear-gradient(180deg,#24102a,#190816);border:1px solid rgba(255,255,255,0.03)}
+.question{font-weight:800;margin-bottom:8px}
+.answers{display:grid;gap:8px}
+.answer{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;cursor:pointer;font-weight:700;color:var(--muted)}
+.answer.correct{background:linear-gradient(90deg,#173f2d,#1b552e);color:#bff4d6;border-color:#12633f}
+.answer.wrong{background:linear-gradient(90deg,#3d1414,#5a0f0f);color:#ffd7d7;border-color:#5a0f0f}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.shop-item{background:linear-gradient(180deg,#27132d,#1a0917);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;align-items:center;gap:8px}
+.item-preview{width:88px;height:88px;border-radius:8px;background:linear-gradient(180deg,#3a1b47,#1b0c1f);display:flex;align-items:center;justify-content:center;color:var(--gold);font-weight:900}
+.buy{padding:8px 10px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--accent),var(--gold));color:#2a0a3d;font-weight:800;cursor:pointer}
+.footer{padding:12px;border-top:1px solid rgba(255,255,255,0.03);font-size:12px;color:var(--muted);text-align:center}
+.top-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.stat-pill{background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:999px;font-weight:800;color:var(--muted);font-size:13px}
+.nav{display:flex;gap:8px;margin-top:12px}
+.nav .button{flex:1;padding:10px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.03)}
+.badge{background:linear-gradient(90deg,var(--gold),#ffd88c);color:#2a0a3d;padding:6px 10px;border-radius:8px;font-weight:800}
+small.note{display:block;color:var(--muted);margin-top:8px;text-align:center}
+</style>
+</head>
+<body>
+<div class="app" role="application" aria-label="Royal Fluff Prototype">
+  <div class="header">
+    <div class="logo">RF</div>
+    <div class="title">
+      <h1>Royal Fluff</h1>
+      <p>British Longhair — Prototype</p>
+    </div>
+    <div class="badge" id="rankBadge">Kitten</div>
+  </div>
+
+  <div class="container">
+    <section id="home" class="screen active">
+      <div class="home-hero">
+        <div class="cat-card">
+          <div class="cat-illustration" aria-hidden="true">
+            <div class="fur"></div>
+            <div class="cat-face">😺</div>
+          </div>
+          <div class="cat-info">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <strong style="font-size:15px">Duchess Velvet</strong>
+              <div style="font-size:13px;color:var(--muted)">Lvl <span id="level">1</span></div>
+            </div>
+            <div style="margin-top:8px;color:var(--muted);font-size:13px">A regal British Longhair with a calm and gentle temperament.</div>
+            <div class="buttons">
+              <button class="button primary" id="btnPlay">Play</button>
+              <button class="button" id="btnFeed">Feed</button>
+              <button class="button" id="btnGroom">Groom</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel" style="width:100%">
+          <div class="top-row">
+            <div class="stat-pill">Coins: <span id="coins">120</span></div>
+            <div class="stat-pill">Gems: <span id="gems">3</span></div>
+            <div class="stat-pill">Happiness: <span id="happiness">78</span>%</div>
+          </div>
+          <div class="nav">
+            <button class="button" onclick="show('groom')">Grooming Gala</button>
+            <button class="button" onclick="show('trivia')">Trivia Tower</button>
+            <button class="button" onclick="show('shop')">Shop</button>
+          </div>
+          <small class="note">Tip: Brush gently to increase happiness and avoid over-brushing.</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="groom" class="screen">
+      <div class="top-row">
+        <button class="button small" onclick="show('home')">← Home</button>
+        <div class="stat-pill">Groom Score: <span id="groomScore">0</span></div>
+      </div>
+      <div class="groom-area" id="groomArea" aria-label="Grooming area">
+        <div class="cat-sprite" id="catSprite" role="img" aria-label="Royal cat">
+          <div class="fur"></div>
+          <div class="cat-face" style="font-size:44px">😺</div>
+          <div class="eyes" style="position:absolute;top:70px;display:flex;gap:26px">
+            <div class="eye"></div><div class="eye"></div>
+          </div>
+        </div>
+        <div class="brush" id="brushBtn" role="button" aria-label="Brush">🪮 Brush</div>
+      </div>
+      <div class="groom-stats">
+        <div>Session Score: <strong id="sessionScore">0</strong></div>
+        <div><button class="button small" id="endGroom">Finish</button></div>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <div style="font-weight:800;margin-bottom:6px">How to groom</div>
+        <div style="color:var(--muted);font-size:13px">Click or drag the brush across the cat sprite. Moderate speed and steady strokes increase score. Fast jerky movements reduce happiness.</div>
+      </div>
+    </section>
+
+    <section id="trivia" class="screen">
+      <div class="top-row">
+        <button class="button small" onclick="show('home')">← Home</button>
+        <div class="stat-pill">Correct: <span id="triviaScore">0</span></div>
+      </div>
+      <div class="trivia-card">
+        <div class="question" id="questionText">Question</div>
+        <div class="answers" id="answersBox"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:12px">
+        <button class="button" id="skipQ">Skip (-1 coin)</button>
+        <button class="button" id="nextQ" style="display:none">Next</button>
+      </div>
+    </section>
+
+    <section id="shop" class="screen">
+      <div class="top-row">
+        <button class="button small" onclick="show('home')">← Home</button>
+        <div class="stat-pill">Store</div>
+      </div>
+      <div class="shop-grid">
+        <div class="shop-item">
+          <div class="item-preview">👑</div>
+          <div style="font-weight:800">Royal Crown</div>
+          <div style="color:var(--muted);font-size:13px">Exclusive headpiece</div>
+          <button class="buy" data-item="crown" data-cost="20">Buy 20</button>
+        </div>
+        <div class="shop-item">
+          <div class="item-preview">🎀</div>
+          <div style="font-weight:800">Velvet Bow</div>
+          <div style="color:var(--muted);font-size:13px">Elegant collar bow</div>
+          <button class="buy" data-item="bow" data-cost="8">Buy 8</button>
+        </div>
+        <div class="shop-item">
+          <div class="item-preview">🛋️</div>
+          <div style="font-weight:800">Nap Pillow</div>
+          <div style="color:var(--muted);font-size:13px">Cosy pillow</div>
+          <button class="buy" data-item="pillow" data-cost="12">Buy 12</button>
+        </div>
+        <div class="shop-item">
+          <div class="item-preview">✨</div>
+          <div style="font-weight:800">Royal Dust</div>
+          <div style="color:var(--muted);font-size:13px">Decor shimmer (gems)</div>
+          <button class="buy" data-item="dust" data-cost="1">Buy 1</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">PWA Prototype — Installable. Offline-ready.</div>
+  </div>
+</div>
+
+<script>
+// PWA install prompt handling
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // show a custom install CTA inside the app
+  const installBtn = document.createElement('button');
+  installBtn.textContent = 'Install App';
+  installBtn.className = 'button primary';
+  installBtn.style.position = 'fixed';
+  installBtn.style.left = '50%';
+  installBtn.style.transform = 'translateX(-50%)';
+  installBtn.style.bottom = '28px';
+  installBtn.style.zIndex = 9999;
+  installBtn.onclick = async () => {
+    installBtn.disabled = true;
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
+    if(choice.outcome === 'accepted'){
+      installBtn.textContent = 'Installed ✅';
+      setTimeout(()=>installBtn.remove(), 1500);
+    } else {
+      installBtn.textContent = 'Install'; installBtn.disabled = false;
+    }
+  };
+  document.body.appendChild(installBtn);
+});
+
+// register service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./service-worker.js').then(()=>{
+    console.log('Service worker registered');
+  }).catch(()=>{});
+}
+
+// --- Game logic (same as prototype) ---
+const state = { coins:120, gems:3, happiness:78, level:1, rank:'Kitten', groomTotal:0, triviaCorrect:0 };
+function updateUI(){ document.getElementById('coins').textContent = state.coins; document.getElementById('gems').textContent = state.gems; document.getElementById('happiness').textContent = state.happiness; document.getElementById('level').textContent = state.level; document.getElementById('rankBadge').textContent = state.rank; }
+updateUI();
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+document.getElementById('btnPlay').addEventListener('click', ()=> show('groom'));
+document.getElementById('btnFeed').addEventListener('click', ()=> { state.coins = Math.max(0, state.coins - 5); state.happiness = Math.min(100, state.happiness + 6); updateUI(); alert('You fed Duchess Velvet. Happiness +6, Coins -5.'); });
+document.getElementById('btnGroom').addEventListener('click', ()=> show('groom'));
+
+// Grooming game
+let grooming=false,lastX=null,lastT=null,sessionScore=0;
+const groomArea = document.getElementById('groomArea');
+const sessionScoreEl = document.getElementById('sessionScore');
+const groomScoreEl = document.getElementById('groomScore');
+function startG(e){ grooming=true; const p = e.touches ? e.touches[0] : e; lastX = p.clientX; lastT = Date.now(); }
+function endG(e){ grooming=false; lastX=null; lastT=null; }
+function moveG(e){ if(!grooming) return; const p = e.touches ? e.touches[0] : e; const x=p.clientX; const now=Date.now(); const dx=Math.abs(x-lastX); const dt=Math.max(now-lastT,1); const speed=dx/dt; if(speed>0.02 && speed<0.5){ sessionScore += Math.ceil(1 + (0.4 - speed)*5); state.happiness = Math.min(100, state.happiness + 0.2); } else if(speed>=0.5){ sessionScore = Math.max(0, sessionScore - 2); state.happiness = Math.max(0, state.happiness - 1); document.getElementById('catSprite').style.transform='rotate(-6deg)'; setTimeout(()=>document.getElementById('catSprite').style.transform='',300); } sessionScoreEl.textContent = sessionScore; groomScoreEl.textContent = state.groomTotal + sessionScore; lastX = x; lastT = now; updateUI(); }
+groomArea.addEventListener('mousedown', startG); groomArea.addEventListener('touchstart', startG); window.addEventListener('mouseup', endG); window.addEventListener('touchend', endG); groomArea.addEventListener('mousemove', moveG); groomArea.addEventListener('touchmove', moveG);
+document.getElementById('endGroom').addEventListener('click', ()=>{ state.groomTotal += sessionScore; const earned = Math.max(5, Math.min(40, Math.floor(sessionScore/2))); state.coins += earned; sessionScore = 0; sessionScoreEl.textContent='0'; groomScoreEl.textContent = state.groomTotal; updateUI(); alert('Grooming finished! Coins +' + earned + '.'); });
+
+// Trivia
+const questions = [
+  {q:"Where did the British Longhair originate?", a:["United Kingdom","Japan","USA","Russia"], c:0},
+  {q:"Which breed helped create the British Longhair?", a:["Persian","Siamese","Maine Coon","Bengal"], c:0},
+  {q:"British Longhairs are generally:", a:["Hyperactive","Calm and dignified","Noisy","Wild"], c:1},
+  {q:"Which food is unsafe for cats?", a:["Cooked chicken","Chocolate","Canned tuna (in moderation)","Cat food"], c:1},
+  {q:"What color is commonly associated with British Longhairs?", a:["Blue/Gray","Bright orange","Pure black only","Spotted"], c:0}
+];
+let currentQ = null;
+function pickQuestion(){ currentQ = questions[Math.floor(Math.random()*questions.length)]; document.getElementById('questionText').textContent = currentQ.q; const box = document.getElementById('answersBox'); box.innerHTML=''; currentQ.a.forEach((opt,i)=>{ const b = document.createElement('button'); b.className='answer'; b.textContent = opt; b.addEventListener('click', ()=> answer(i,b)); box.appendChild(b); }); }
+function answer(i,btn){ if(i===currentQ.c){ btn.classList.add('correct'); state.triviaCorrect += 1; state.coins += 6; document.getElementById('triviaScore').textContent = state.triviaCorrect; updateUI(); setTimeout(()=>pickQuestion(),800); } else { btn.classList.add('wrong'); const buttons = document.querySelectorAll('#answersBox .answer'); buttons[currentQ.c].classList.add('correct'); state.coins = Math.max(0, state.coins - 1); state.happiness = Math.max(0, state.happiness - 2); updateUI(); setTimeout(()=>pickQuestion(),1000); } }
+document.getElementById('skipQ').addEventListener('click', ()=>{ state.coins = Math.max(0, state.coins - 1); updateUI(); pickQuestion(); });
+pickQuestion();
+// Shop
+document.querySelectorAll('.buy').forEach(btn=>{ btn.addEventListener('click', ()=>{ const cost=parseInt(btn.dataset.cost,10); const item=btn.dataset.item; if(state.coins>=cost){ state.coins -= cost; if(item==='dust'){ state.gems += 1; } else { state.happiness = Math.min(100, state.happiness + 6); } updateUI(); alert('Purchased ' + item + '!'); } else { alert('Not enough coins.'); } }); });
+// Level & rank progression
+function maybeLevelUp(){ const needed = 5 + state.level*5; if(state.groomTotal + state.triviaCorrect >= needed){ state.level += 1; state.rank = rankForLevel(state.level); updateUI(); alert('Level up! You are now level ' + state.level + ' — ' + state.rank); } }
+function rankForLevel(l){ if(l<3) return 'Kitten'; if(l<5) return 'Baron of Whiskers'; if(l<7) return 'Duchess of Fluff'; if(l<10) return 'Count of Cuddles'; return 'Regal Sovereign'; }
+setInterval(()=>{ maybeLevelUp(); },2500);
+window.addEventListener('keydown',(e)=>{ if(e.key===' ') startG(e); });
+window.addEventListener('keyup',(e)=>{ if(e.key===' ') endG(e); });
+</script>
+</body>
+</html>
